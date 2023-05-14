@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Babylon.js day-002 import model on a page</title>
+
+    <!-- 引入js资源 -->
+    <script src="https://cdn.babylonjs.com/viewer/babylon.viewer.js"></script>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 400px;
+            height: 200px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="renderCanvas">
+        <h1>cube demo</h1>
+        <babylon model="./scene.babylon"></babylon>
+    </div>
+</body>
+
+</html>
