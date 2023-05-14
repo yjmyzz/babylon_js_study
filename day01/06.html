@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Babylon.js day-001 05-mesh and camera</title>
+
+    <!-- 引入js资源 -->
+    <script src="../js/dat.gui.min.js"></script>
+    <script src="../js//Assets.js"></script>
+    <script src="../js//ammo.js"></script>
+    <script src="../js//HavokPhysics_umd.js"></script>
+    <script src="../js/cannon.js"></script>
+    <script src="../js/Oimo.js"></script>
+    <script src="../js/earcut.min.js"></script>
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylonjs.materials.min.js"></script>
+    <script src="../js/babylonjs.proceduralTextures.min.js"></script>
+    <script src="../js/babylonjs.postProcess.min.js"></script>
+    <script src="../js/babylonjs.loaders.js"></script>
+    <script src="../js/babylonjs.serializers.min.js"></script>
+    <script src="../js/babylon.gui.min.js"></script>
+    <script src="../js/babylon.inspector.bundle.js"></script>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 50%;
+            height: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false }); };
+
+        //核心代码
+        var createScene = function () {
+            // 创建babylon场景(或者叫"舞台"更容易理解)
+            var scene = new BABYLON.Scene(engine);
+
+            // 新建1个摄像机（对着舞台，有兴趣的同学可以调整下0, 5, -10这几个参数值，可以分别控制x,y,z三个轴的观察视角）
+            // var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+            var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(65), 10, BABYLON.Vector3.Zero(), scene);
+
+            // 将摄像机的目标正对场景中心
+            camera.setTarget(BABYLON.Vector3.Zero());
+
+            //摄像头与canvas关联后，鼠标就能控制目标旋转、放大、缩小等动作
+            camera.attachControl(canvas, true);
+
+            //光源（想象一下舞台上，演员表演时，要有聚光灯照在主角身上）
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+            // 控制光源的亮度
+            light.intensity = 0.7;
+
+            // //在scene上放置1个球（diameter-直径,segments -边的个数，越大球看起来越圆润，有兴趣的，可以把segments调整成1对比看看）
+            // var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+
+            // //将球向上移1/2的高度(即：让球底部在场景中心点之上，默认y=0，球心与场景中心重合)
+            // sphere.position.y = 1;
+
+            //放一块"地板"在场景中央(长宽均为6，即正方形)
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+            ground.position.y = -1;
+
+
+            let groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
+            ground.material = groundMaterial;
+
+            //设置地板贴上红黑相间的方块
+            let groundTexture = new BABYLON.Texture(Assets.textures.checkerboard_basecolor_png.rootUrl, scene);
+            ground.material.diffuseTexture = groundTexture;
+
+            //加1个小怪物
+            BABYLON.SceneLoader.ImportMesh("", Assets.meshes.Yeti.rootUrl, Assets.meshes.Yeti.filename, scene, function (newMeshes) {
+                newMeshes[0].scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+                newMeshes[0].position.y = ground.position.y;
+            });
+
+            return scene;
+        };
+
+        window.initFunction = async function () {
+            var asyncEngineCreation = async function () {
+                try {
+                    return createDefaultEngine();
+                } catch (e) {
+                    console.log("the available createEngine function failed. Creating the default engine instead");
+                    return createDefaultEngine();
+                }
+            }
+            window.engine = await asyncEngineCreation();
+            if (!engine) throw 'engine should not be null.';
+            startRenderLoop(engine, canvas);
+            window.scene = createScene();
+        };
+
+        initFunction().then(() => {
+            sceneToRender = scene
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+
+</html>
