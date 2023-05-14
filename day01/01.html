@@ -91,7 +91,7 @@
             light.intensity = 0.7;
 
             //在scene上放置1个球（diameter-直径,segments -边的个数，越大球看起来越圆润，有兴趣的，可以把segments调整成1对比看看）
-            var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+            var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 4 }, scene);
 
             //将球向上移1/2的高度(即：让球底部在场景中心点之上，默认y=0，球心与场景中心重合)
             sphere.position.y = 1;
