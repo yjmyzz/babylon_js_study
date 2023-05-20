@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>A Basic House</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 50%;
+            height: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <!-- 导入babylon核心功能 -->
+    <script src="../js/babylon.js"></script>
+    <!-- 允许scene中导入model -->
+    <script src="../js/babylonjs.loaders.min.js"></script>
+    <!-- 允许使用触屏 -->
+    <script src="../js/pep.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        //调整地面/屋顶/屋身的大小及位置
+        const adjust = (ground, roof, box) => {
+            const scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+            ground.scaling = scaling;
+            roof.scaling = scaling;
+            box.scaling = scaling;
+            box.position.y = ground.position.y + 0.25;
+            roof.position.y = box.position.y + 0.4;
+
+            box.position.x = -0.8;
+            roof.position.x = box.position.x;
+        }
+
+
+        //调整-联体别墅-地面/屋顶/屋身的大小及位置
+        const adjustSemiHouse = (ground, roof, box) => {
+            const scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+            roof.scaling = scaling;
+            box.scaling = scaling;
+            box.position.y = ground.position.y + 0.25;
+            roof.position.y = box.position.y + 0.4;
+            box.position.x = 0.5;
+            roof.position.x = box.position.x;
+        }
+
+        //创建地面
+        const buildGround = () => {
+            const groundMat = new BABYLON.StandardMaterial("groundMat");
+            groundMat.diffuseColor = new BABYLON.Color3(0, 1, 0);
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 3 });
+            ground.material = groundMat;
+            return ground;
+        }
+
+        //创建屋顶
+        const buildRoof = () => {
+            const roofMat = new BABYLON.StandardMaterial("roofMat");
+            roofMat.diffuseTexture = new BABYLON.Texture("../assets/img/roof.jpg");
+
+            const roof = BABYLON.MeshBuilder.CreateCylinder("roof", { diameter: 1.3, height: 1.2, tessellation: 3 });
+            roof.material = roofMat;
+            roof.scaling.x = 0.75;
+            roof.rotation.z = Math.PI / 2;
+            roof.position.y = 1.22;
+
+            return roof;
+        }
+
+        //创建-联体别墅-屋顶
+        const buildSemiHouseRoof = () => {
+
+            const roof = BABYLON.MeshBuilder.CreateCylinder("roof", { diameter: 1.3, height: 2.2, tessellation: 3 });
+
+            roof.scaling.y = 0.75;
+            roof.rotation.z = Math.PI / 2;
+            roof.position.y = 1.22;
+
+            const roofMat = new BABYLON.StandardMaterial("roofMat");
+            roofMat.diffuseTexture = new BABYLON.Texture("../assets/img/roof.jpg");
+            roof.material = roofMat;
+
+            return roof;
+        }
+
+        //创建屋身
+        const buildBox = () => {
+            const boxMat = new BABYLON.StandardMaterial("boxMat");
+            boxMat.diffuseTexture = new BABYLON.Texture("../assets/img/cubehouse.png")
+
+            const faceUV = [];
+            faceUV[0] = new BABYLON.Vector4(0.5, 0.0, 0.75, 1.0); //后面
+            faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.25, 1.0); //前面
+            faceUV[2] = new BABYLON.Vector4(0.25, 0, 0.5, 1.0); //右面
+            faceUV[3] = new BABYLON.Vector4(0.75, 0, 1.0, 1.0); //左面
+
+            const box = BABYLON.MeshBuilder.CreateBox("box", { faceUV: faceUV, wrap: true });
+            box.material = boxMat;
+            box.position.y = 0.5;
+
+            return box;
+        }
+
+        //创建-联体别墅-屋身
+        const buildSemiHouseBox = () => {
+            const boxMat = new BABYLON.StandardMaterial("boxMat");
+            boxMat.diffuseTexture = new BABYLON.Texture("../assets/img/semihouse.png")
+
+            const faceUV = [];
+            faceUV[0] = new BABYLON.Vector4(0.6, 0.0, 1.0, 1.0); //rear face
+            faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.4, 1.0); //front face
+            faceUV[2] = new BABYLON.Vector4(0.4, 0, 0.6, 1.0); //right side
+            faceUV[3] = new BABYLON.Vector4(0.4, 0, 0.6, 1.0); //left side
+
+            const box = BABYLON.MeshBuilder.CreateBox("box", { width: 2, height: 1, faceUV: faceUV, wrap: true });
+            box.material = boxMat;
+            box.position.y = 0.5;
+
+            return box;
+        }
+
+        //在这里添加自己的核心代码
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, new BABYLON.Vector3(0, 0, 0));
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0.5, 0.5, 0));
+
+            const ground = buildGround();
+
+            const roof = buildRoof();
+            const box = buildBox();
+            adjust(ground, roof, box);
+
+            const roof2 = buildSemiHouseRoof();
+            const box2 = buildSemiHouseBox();
+            adjustSemiHouse(ground, roof2, box2);
+
+            return scene;
+        };
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+
+</html>
