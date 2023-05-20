@@ -70,11 +70,15 @@
             const box2 = BABYLON.MeshBuilder.CreateBox("box", { size: 0.4 }, scene);
             box2.position = new BABYLON.Vector3(0, 0, 0);
             box2.scaling = new BABYLON.Vector3(1, 0.5, 1);
+            //绕y轴转45度
+            box2.rotation = new BABYLON.Vector3(0,Math.PI/4,0);
 
             //方块3(靠右，靠上，靠后)
             const box3 = BABYLON.MeshBuilder.CreateBox("box", { size: 0.4 }, scene);
             box3.position = new BABYLON.Vector3(1, 0.2, 0.4);
             box3.scaling = new BABYLON.Vector3(1, 1, 0.5);
+            box3.rotation = new BABYLON.Vector3(-Math.PI/4,0,0);
+
 
             var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 3, height: 1.5 }, scene);
             let groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
