@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>combine mesh</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <!-- 导入babylon核心功能 -->
+    <script src="../js/babylon.js"></script>
+    <!-- 允许scene中导入model -->
+    <script src="../js/babylonjs.loaders.min.js"></script>
+    <!-- 允许使用触屏 -->
+    <script src="../js/pep.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        //创建地面
+        const buildGround = () => {
+            const groundMat = new BABYLON.StandardMaterial("groundMat");
+            groundMat.diffuseColor = new BABYLON.Color3(0, 1, 0);
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 2, height: 1.5 });
+            ground.material = groundMat;
+            return ground;
+        }
+
+        //创建屋顶
+        const buildRoof = () => {
+            const roofMat = new BABYLON.StandardMaterial("roofMat");
+            roofMat.diffuseTexture = new BABYLON.Texture("../assets/img/roof.jpg");
+            const roof = BABYLON.MeshBuilder.CreateCylinder("roof", { diameter: 0.7, height: 0.6, tessellation: 3 });
+            roof.material = roofMat;
+            roof.scaling.x = 0.75;
+            roof.rotation.z = Math.PI / 2;
+            roof.position.y = 0.63;
+            return roof;
+        }
+
+
+        //创建屋身
+        const buildBox = () => {
+            const boxMat = new BABYLON.StandardMaterial("boxMat");
+            boxMat.diffuseTexture = new BABYLON.Texture("../assets/img/cubehouse.png")
+
+            const faceUV = [];
+            faceUV[0] = new BABYLON.Vector4(0.5, 0.0, 0.75, 1.0); //后面
+            faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.25, 1.0); //前面
+            faceUV[2] = new BABYLON.Vector4(0.25, 0, 0.5, 1.0); //右面
+            faceUV[3] = new BABYLON.Vector4(0.75, 0, 1.0, 1.0); //左面
+
+            const box = BABYLON.MeshBuilder.CreateBox("box", { size: 0.5, faceUV: faceUV, wrap: true });
+            box.material = boxMat;
+            box.position.y = 0.25;
+
+            return box;
+        }
+
+        const buildHouse = () => {
+            const box1 = buildBox();
+            const roof1 = buildRoof();
+            const house1 = BABYLON.Mesh.MergeMeshes([box1, roof1]);
+            house1.position.x = -0.4;
+
+            const box2 = buildBox();
+            const roof2 = buildRoof();
+            const house2 = BABYLON.Mesh.MergeMeshes([roof2, box2]);
+            house2.position.x = 0.4;
+
+            return [house1, house2];
+        }
+
+
+        //在这里添加自己的核心代码
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, new BABYLON.Vector3(0, 0, 0));
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0.5, 0.5, 0));
+
+            const ground = buildGround();
+
+            //创建房子
+            const houseList = buildHouse();
+
+            return scene;
+        };
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+
+</html>
