@@ -43,8 +43,8 @@
     <script>
         BabylonViewer.viewerManager.getViewerPromiseById('myViewer').then((viewer) => {
             viewer.onSceneInitObservable.add(() => {
-                viewer.sceneManager.camera.radius = 15; //set camera radius
-                viewer.sceneManager.camera.beta = Math.PI / 2.2; //angle of depression
+                viewer.sceneManager.camera.radius = 15;
+                viewer.sceneManager.camera.beta = Math.PI / 2.2;
             });
             viewer.onEngineInitObservable.add((scene) => {
                 viewer.loadModel({
