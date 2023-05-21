@@ -53,7 +53,9 @@
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
 
+            //造车身
             const car = buildCar();
+            //安装轮子
             buildWheel(car);
 
             showAxis(0.8, scene);
@@ -61,6 +63,7 @@
             return scene;
         }
 
+        //车身
         const buildCar = () => {
             //base
             const outline = [
@@ -84,6 +87,7 @@
         }
 
 
+        //轮子
         const buildWheel = (car) => {
             const wheelRB = BABYLON.MeshBuilder.CreateCylinder("wheelRB", { diameter: 0.125, height: 0.05 })
             wheelRB.parent = car;
