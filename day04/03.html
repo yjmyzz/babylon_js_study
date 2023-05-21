@@ -98,12 +98,10 @@
             return box;
         }
 
+        //根据传入的参数width，生成2种不同风格的房屋
         const buildHouse = (width) => {
             const box = buildBox(width);
             const roof = buildRoof(width);
-
-            //将box与roof组合
-            // MergeMeshes(meshes: Mesh[], disposeSource?: boolean, allow32BitsIndices?: boolean, meshSubclass?: Mesh, subdivideWithSubMeshes?: boolean, multiMultiMaterials?: boolean): Nullable<Mesh>
             return BABYLON.Mesh.MergeMeshes([box, roof], true, false, null, true, true);
         }
 
@@ -121,7 +119,6 @@
             //创建房子
             const house1 = buildHouse(1);
             const house2 = buildHouse(2);
-
 
             house1.position.x = -0.5
             house2.position.x = 0.5
