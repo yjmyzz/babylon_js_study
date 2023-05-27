@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Animation</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylonjs.loaders.min.js"></script>
+    <script src="../js/earcut.min.js"></script>
+    <script src="../js/pep.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        let carAnimatable = null;
+        let wheelAnimatables = [];
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 15, new BABYLON.Vector3(0, 0, 0));
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
+
+            BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "village.glb");
+            BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "car.babylon").then(() => {
+                //car加载后的回调处理
+
+                const car = scene.getMeshByName("car");
+                car.rotation = new BABYLON.Vector3(-Math.PI / 2, Math.PI / 2, 0);
+                car.position = new BABYLON.Vector3(3, 0.16, 7.7);
+
+                const animCar = new BABYLON.Animation("carAnimation", "position.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+                const carKeys = [];
+
+                carKeys.push({
+                    frame: 0,
+                    value: 7.7
+                });
+
+                carKeys.push({
+                    frame: 90,
+                    value: -6.9
+                });
+
+                carKeys.push({
+                    frame: 120,
+                    value: -7.5
+                });
+
+                carKeys.push({
+                    frame: 150,
+                    value: -7.8
+                });
+
+                animCar.setKeys(carKeys);
+
+                car.animations = [];
+                car.animations.push(animCar);
+
+                carAnimatable = scene.beginAnimation(car, 0, 150, true);
+
+                const wheelRB = scene.getMeshByName("wheelRB");
+                const wheelRF = scene.getMeshByName("wheelRF");
+                const wheelLB = scene.getMeshByName("wheelLB");
+                const wheelLF = scene.getMeshByName("wheelLF");
+                let wheels = [wheelRB, wheelRF, wheelLB, wheelLF];
+                for (let i = 0; i < wheels.length; i++) {
+                    //车轮开始动画
+                    wheelAnimatables.push(scene.beginAnimation(wheels[i], 0, 30, true));
+                }
+
+            });
+
+            showAxis(3.8, scene);
+
+            return scene;
+        }
+
+
+
+        /***********Create and Draw Axes**************************************/
+        const showAxis = (size, scene) => {
+            const makeTextPlane = (text, color, size) => {
+                const dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", 50, scene, true);
+                dynamicTexture.hasAlpha = true;
+                dynamicTexture.drawText(text, 5, 40, "bold 36px Arial", color, "transparent", true);
+                const plane = new BABYLON.Mesh.CreatePlane("TextPlane", size, scene, true);
+                plane.material = new BABYLON.StandardMaterial("TextPlaneMaterial", scene);
+                plane.material.backFaceCulling = false;
+                plane.material.specularColor = new BABYLON.Color3(0, 0, 0);
+                plane.material.diffuseTexture = dynamicTexture;
+                return plane;
+            };
+
+            const axisX = BABYLON.Mesh.CreateLines("axisX", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, 0.05 * size, 0),
+                new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, -0.05 * size, 0)
+            ]);
+            axisX.color = new BABYLON.Color3(1, 0, 1);
+            const xChar = makeTextPlane("X", "yellow", size / 7);
+            xChar.position = new BABYLON.Vector3(0.9 * size, 0.07 * size, 0);
+
+            const axisY = BABYLON.Mesh.CreateLines("axisY", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3(-0.05 * size, size * 0.95, 0),
+                new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3(0.05 * size, size * 0.95, 0)
+            ]);
+            axisY.color = new BABYLON.Color3(0, 1, 0);
+            const yChar = makeTextPlane("Y", "white", size / 7);
+            yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
+
+            const axisZ = BABYLON.Mesh.CreateLines("axisZ", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3(0, -0.05 * size, size * 0.95),
+                new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3(0, 0.05 * size, size * 0.95)
+            ]);
+            axisZ.color = new BABYLON.Color3(0.5, 1, 1);
+            const zChar = makeTextPlane("Z", "white", size / 7);
+            zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
+        };
+
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+        window.addEventListener("click", (e) => {
+
+
+            if (e.altKey) {
+                //alt键按下时，车子前进动画：切换 暂停/播放
+                if (carAnimatable._paused) {
+                    carAnimatable.restart();
+                }
+                else {
+                    carAnimatable.pause();
+                }
+            }
+
+            if (e.shiftKey) {
+                //shift键按下时，左前方车轮动画：切换 暂停/播放
+                let wheelLFAnimatable = wheelAnimatables[3];
+                if (wheelLFAnimatable._paused) {
+                    wheelLFAnimatable.restart();
+                }
+                else {
+                    wheelLFAnimatable.pause();
+                }
+
+            }
+
+        });
+    </script>
+</body>
+
+</html>
