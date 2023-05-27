@@ -46,6 +46,9 @@
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
+        let carAnimatable = null;
+        let wheelAnimatables = [];
+
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
@@ -89,7 +92,7 @@
                 car.animations = [];
                 car.animations.push(animCar);
 
-                scene.beginAnimation(car, 0, 150, true);
+                carAnimatable = scene.beginAnimation(car, 0, 150, true);
 
                 const wheelRB = scene.getMeshByName("wheelRB");
                 const wheelRF = scene.getMeshByName("wheelRF");
@@ -98,7 +101,7 @@
                 let wheels = [wheelRB, wheelRF, wheelLB, wheelLF];
                 for (let i = 0; i < wheels.length; i++) {
                     //车轮开始动画
-                    scene.beginAnimation(wheels[i], 0, 30, true);
+                    wheelAnimatables.push(scene.beginAnimation(wheels[i], 0, 30, true));
                 }
 
             });
@@ -158,6 +161,33 @@
 
         window.addEventListener("resize", function () {
             engine.resize();
+        });
+
+        window.addEventListener("click", (e) => {
+
+
+            if (e.altKey) {
+                //alt键按下时，车子前进动画：切换 暂停/播放
+                if (carAnimatable._paused) {
+                    carAnimatable.restart();
+                }
+                else {
+                    carAnimatable.pause();
+                }
+            }
+
+            if (e.shiftKey) {
+                //shift键按下时，左前方车轮动画：切换 暂停/播放
+                let wheelLFAnimatable = wheelAnimatables[3];
+                if (wheelLFAnimatable._paused) {
+                    wheelLFAnimatable.restart();
+                }
+                else {
+                    wheelLFAnimatable.pause();
+                }
+
+            }
+
         });
     </script>
 </body>
