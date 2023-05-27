@@ -58,13 +58,26 @@
                 var dude = result.meshes[0];
                 dude.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
                 scene.beginAnimation(result.skeletons[0], 0, 100, true, 1.0);
-                const rightSpeed = 0, upSpeed = 0, forwardSpeed = 0.01;
+
+                // //向前运动
+                // const rightSpeed = 0, upSpeed = 0, forwardSpeed = 0.01;
+
+                //向右运动（由于人物动画走路朝向的设计原因，仅设置rightSpeed有值，会让人横向移动，类似螃蟹，有点奇怪）
+                const rightSpeed = 0.01, upSpeed = 0, forwardSpeed = 0.00;
+
+                //注：要实现真正向『右』
+                //dude.rotation.y = Math.PI / 2;
+                //const rightSpeed = 0.00, upSpeed = 0, forwardSpeed = 0.01;
+
                 let distance = 0;
 
+                //控制下一帧的行为
                 scene.onBeforeRenderObservable.add(() => {
+                    //让人物动起来
                     dude.movePOV(rightSpeed, upSpeed, forwardSpeed);
                     distance += 0.002;
                     if (distance > 1) {
+                        //走的距离>1地，复位
                         distance = 0;
                         dude.position = BABYLON.Vector3.Zero();
                     }
@@ -72,10 +85,7 @@
                 });
             });
 
-
-
             showAxis(4, scene);
-
             return scene;
         }
 
