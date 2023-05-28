@@ -105,18 +105,18 @@
                             ready = true;
                             return;
                         }
-                        
-                        if (ready){
+
+                        if (ready) {
                             //停止动画
                             carAnimable.stop();
                             //模拟第1辆车，被撞飞
-                            car1.rotate(BABYLON.Axis.Y, Math.PI*0.4, BABYLON.Space.LOCAL);
-                            car1.position.x -= 0.2; 
-                            car1.position.y += 0.5; 
+                            car1.rotate(BABYLON.Axis.Y, Math.PI * 0.4, BABYLON.Space.LOCAL);
+                            car1.position.x -= 0.2;
+                            car1.position.y += 0.5;
                             return;
-                           
+
                         }
-            
+
                     }
 
                 });
