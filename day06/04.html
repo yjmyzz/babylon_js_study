@@ -54,39 +54,60 @@
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 
+            //画1个正方形(辅助观察人物运动路径)
+            const squarePoints = [new BABYLON.Vector3(-2, 0, 2),
+            new BABYLON.Vector3(2, 0, 2),
+            new BABYLON.Vector3(2, 0, -2),
+            new BABYLON.Vector3(-2, 0, -2),
+            new BABYLON.Vector3(-2, 0, 2)];
+            const square = BABYLON.MeshBuilder.CreateLines("square", { points: squarePoints });
 
+            //走距离dist后，转方向trun(角度)
+            const trunPoint = function (turn, dist) {
+                this.turn = turn;
+                this.dist = dist;
+            }
 
+            //运动轨迹(关键转向点)
+            //注：因本例中的人物原型太大，加载后缩小处理了，所以这里的距离也要回应缩小（即：*0.2)
+            const track = [
+                new trunPoint(Math.PI / 2, 4 * 0.2),
+                new trunPoint(Math.PI / 2, 8 * 0.2),
+                new trunPoint(Math.PI / 2, 12 * 0.2),
+                new trunPoint(Math.PI / 2, 16 * 0.2)
+            ]
 
             BABYLON.SceneLoader.ImportMeshAsync("him", "../assets/glb/", "dude.babylon").then((result) => {
                 var dude = result.meshes[0];
                 dude.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
+                dude.position = new BABYLON.Vector3(2, 0, 2);
                 scene.beginAnimation(result.skeletons[0], 0, 100, true, 1.0);
 
                 //向前运动
-                const rightSpeed = 0, upSpeed = 0, forwardSpeed = 0.01;
+                const rightSpeed = 0.00, upSpeed = 0.00, forwardSpeed = 0.01;
 
-                let distance = 0, turnFlag = false;
+                //distance记录走过的距离，p为track中转向点的下标(即：第几个转向点)
+                let distance = 0, p = 0;
 
                 //控制下一帧的行为
                 scene.onBeforeRenderObservable.add(() => {
                     //让人物动起来
                     dude.movePOV(rightSpeed, upSpeed, forwardSpeed);
                     distance += 0.002;
+                    //判断关键转向点
+                    console.log(distance);
+                    if (distance > track[p].dist) {
+                        dude.rotate(BABYLON.Axis.Y, track[p].turn, BABYLON.Space.LOCAL);
+                        p += 1;
+                        p %= track.length;
 
-                    //走到0.5距离时，右转90度
-                    if (!turnFlag && Math.abs(distance - 0.5) <= 0.000001) {
-                        dude.rotate(BABYLON.Axis.Y, Math.PI / 2, BABYLON.Space.LOCAL);
-                        turnFlag = true;
+                        if (p === 0) {
+                            //走到最开始的位置时，复位
+                            distance = 0;
+                            dude.position = new BABYLON.Vector3(2, 0, 2);
+                            dude.rotation = BABYLON.Vector3.Zero();
+                        }
                     }
-
-                    if (distance > 1) {
-                        //走的距离>1地，复位
-                        distance = 0;
-                        dude.position = BABYLON.Vector3.Zero();
-                        dude.rotation = BABYLON.Vector3.Zero();
-                        turnFlag = false;
-                    }
-
                 });
             });
 
