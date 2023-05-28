@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Distant Hills with grass</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 150%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylonjs.loaders.min.js"></script>
+    <!-- <script src="../js/earcut.min.js"></script>
+    <script src="../js/pep.js"></script> -->
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        //声明2个变量，方便控制动画
+        let wheelAnimatables, carAnimatable;
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 200, new BABYLON.Vector3(0, 0, 0));
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(4, 1, 0));
+
+
+            const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap("largeGround", "../assets/img/villageheightmap.png",
+                { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 });
+
+
+            const largeGroundMat = new BABYLON.StandardMaterial("largeGroundMat");
+            largeGroundMat.diffuseTexture = new BABYLON.Texture("../assets/img//valleygrass.png");
+            largeGround.material = largeGroundMat;
+
+            return scene;
+        }
+
+
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.altKey) {
+                if (carAnimatable._paused) {
+                    carAnimatable.restart();
+                }
+                else {
+                    carAnimatable.pause();
+                }
+            }
+
+            if (e.shiftKey) {
+                let first = wheelAnimatables[0];
+                if (first._paused) {
+                    wheelAnimatables.forEach(element => {
+                        element.restart();
+                    });
+                }
+                else {
+                    wheelAnimatables.forEach(element => {
+                        element.pause();
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
