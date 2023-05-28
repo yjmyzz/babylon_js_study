@@ -53,9 +53,6 @@
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
-        //声明2个变量，方便控制动画
-        let wheelAnimatables, carAnimatable;
-
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
@@ -63,8 +60,6 @@
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(4, 1, 0));
 
-
-            //Create Village ground
             const groundMat = new BABYLON.StandardMaterial("groundMat");
             groundMat.diffuseTexture = new BABYLON.Texture("../assets/img/villagegreen.png");
             groundMat.diffuseTexture.hasAlpha = true;
