@@ -53,8 +53,7 @@
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
-        //声明2个变量，方便控制动画
-        let wheelAnimatables, carAnimatable;
+
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
@@ -62,15 +61,6 @@
             const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 30, new BABYLON.Vector3(0, 0, 0));
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(4, 1, 0));
-
-
-            //Create Village ground
-            const groundMat = new BABYLON.StandardMaterial("groundMat");
-            groundMat.diffuseTexture = new BABYLON.Texture("../assets/img/villagegreen.png");
-            groundMat.diffuseTexture.hasAlpha = true;
-
-            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 24, height: 24 });
-            ground.material = groundMat;
 
             const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap("largeGround", "../assets/img/villageheightmap.png",
                 { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 });
@@ -80,14 +70,14 @@
             largeGround.material = largeGroundMat;
             largeGround.position.y = -0.001;
 
-            BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "village.glb");
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 24, height: 24 });
+            const groundMat = new BABYLON.StandardMaterial("groundMat");
+            groundMat.diffuseTexture = new BABYLON.Texture("../assets/img/villagegreen.png");
+            groundMat.diffuseTexture.hasAlpha = true;
+            ground.material = groundMat;
 
-            // BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "village.glb").then((result) => {
-            //     //把village.glb中自带的绿色ground设置为不可见
-            //     console.log(result);
-            //     var _ground = result.meshes[1];
-            //     _ground.isVisible = false;
-            // });
+            //导入村庄里的房屋
+            BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "village.glb");
 
             return scene;
         }
