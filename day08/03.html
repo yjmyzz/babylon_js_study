@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Village and Skybox</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 150%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylonjs.loaders.min.js"></script>
+    <!-- <script src="../js/earcut.min.js"></script>
+    <script src="../js/pep.js"></script> -->
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 3.5, Math.PI / 1.5, 30, new BABYLON.Vector3(0, 0, 0));
+            camera.upperBetaLimit = Math.PI / 2.2;
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
+
+            BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "valleyvillage.glb");
+
+            // Skybox
+            var skybox = BABYLON.MeshBuilder.CreateBox("skybox", { size: 1000.0 }, scene);
+            var skyboxMaterial = new BABYLON.StandardMaterial("skybox", scene);
+            skyboxMaterial.backFaceCulling = false;
+            skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("../assets/img/sky/skybox", scene);
+            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+            skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+            skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+            skybox.material = skyboxMaterial;
+
+            return scene;
+        }
+
+
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.altKey) {
+                if (carAnimatable._paused) {
+                    carAnimatable.restart();
+                }
+                else {
+                    carAnimatable.pause();
+                }
+            }
+
+            if (e.shiftKey) {
+                let first = wheelAnimatables[0];
+                if (first._paused) {
+                    wheelAnimatables.forEach(element => {
+                        element.restart();
+                    });
+                }
+                else {
+                    wheelAnimatables.forEach(element => {
+                        element.pause();
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

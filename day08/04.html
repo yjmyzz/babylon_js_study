@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ReflectionTexture</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 150%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylonjs.loaders.min.js"></script>
+    <!-- <script src="../js/earcut.min.js"></script>
+    <script src="../js/pep.js"></script> -->
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+
+        // https://doc.babylonjs.com/features/featuresDeepDive/materials/using/reflectionTexture
+
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 3.5, Math.PI / 1.5, 30, new BABYLON.Vector3(0, 0, 0));
+            //camera.upperBetaLimit = Math.PI / 0.5;
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
+
+
+            // Skybox
+            var skybox = BABYLON.MeshBuilder.CreateBox("skybox", { size: 1000.0 }, scene);
+            var skyboxMaterial = new BABYLON.StandardMaterial("skybox", scene);
+            skyboxMaterial.backFaceCulling = false;
+            skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("../assets/img/sky/skybox", scene);
+            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+            skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+            skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+            skybox.material = skyboxMaterial;
+
+
+            var shapeMaterial = new BABYLON.StandardMaterial("mat", scene);
+            shapeMaterial.backFaceCulling = true;
+            shapeMaterial.reflectionTexture = new BABYLON.CubeTexture("../assets/img/sky/skybox", scene);
+            shapeMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
+            shapeMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+            shapeMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            // Sphere
+            var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 8 }, scene);
+            ball.material = shapeMaterial;
+            ball.position.x = -20;
+            ball.rotation.y = Math.PI / 8;
+            ball.rotation.x = -Math.PI / 8;
+
+
+            // Box
+            var box = BABYLON.MeshBuilder.CreateBox("box", { size: 5 }, scene);
+            box.material = shapeMaterial;
+            box.position = new BABYLON.Vector3(-5, 2, 5);
+            box.rotation.y = Math.PI / 8;
+            box.rotation.x = -Math.PI / 4;
+
+
+            //Ground
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+            ground.material = shapeMaterial;
+            ground.position = new BABYLON.Vector3(10, 0, 5);
+            ground.rotation.y = Math.PI / 8;
+            ground.rotation.x = -Math.PI / 2;
+            return scene;
+        }
+
+
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.altKey) {
+                if (carAnimatable._paused) {
+                    carAnimatable.restart();
+                }
+                else {
+                    carAnimatable.pause();
+                }
+            }
+
+            if (e.shiftKey) {
+                let first = wheelAnimatables[0];
+                if (first._paused) {
+                    wheelAnimatables.forEach(element => {
+                        element.restart();
+                    });
+                }
+                else {
+                    wheelAnimatables.forEach(element => {
+                        element.pause();
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+
+</html>
