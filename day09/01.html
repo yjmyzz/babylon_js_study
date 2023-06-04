@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sprite</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 150%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylon.gui.min.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 8, new BABYLON.Vector3(0, 0, 0));
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.PointLight("Point", new BABYLON.Vector3(5, 10, 5));
+
+            // Create a sprite manager
+            // Parameters : name, imgUrl, capacity(最大容量，即树的总数), cellSize, scene
+            const spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "../assets/img/palm.png", 2000, { width: 512, height: 1024 });
+            const tree1 = new BABYLON.Sprite("tree", spriteManagerTrees);
+            //注：树的高宽比例，应该跟cellSize的比例一致，避免失真
+            tree1.width = 1;
+            tree1.height = 2;
+            tree1.position.y = -0.5;
+
+
+            const tree2 = new BABYLON.Sprite("tree2", spriteManagerTrees);
+            tree2.width = 1;
+            tree2.height = 2;
+            tree2.position.x = -1.5;
+            tree2.position.y = 0.8;
+            //逆时针转45度
+            tree2.angle = Math.PI / 4;
+
+            const tree3 = new BABYLON.Sprite("tree3", spriteManagerTrees);
+            tree3.width = 1;
+            tree3.height = 2;
+            tree3.position.x = 1.5;
+            tree3.position.y = 0.8;
+            //顺时针转45度
+            tree3.angle = -Math.PI / 4;
+
+            const tree4 = new BABYLON.Sprite("tree4", spriteManagerTrees);
+            tree4.width = 1;
+            tree4.height = 2;
+            tree4.position.x = -1.5;
+            tree4.position.y = -1.5;
+            //垂直翻转
+            tree4.invertV = true;
+
+            const tree5 = new BABYLON.Sprite("tree5", spriteManagerTrees);
+            tree5.width = 1;
+            tree5.height = 2;
+            tree5.position.x = 1.5;
+            tree5.position.y = -1.5;
+            //水平翻转
+            tree5.invertU = true;
+
+
+            showText();
+
+            return scene;
+        }
+
+
+        const showText = function () {
+            const ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("ui");
+            const text1 = new BABYLON.GUI.TextBlock("t0", "tree1");
+            const text2 = new BABYLON.GUI.TextBlock("t1", "tree2");
+            const text3 = new BABYLON.GUI.TextBlock("t2", "tree3");
+            const text4 = new BABYLON.GUI.TextBlock("t1", "tree4");
+            const text5 = new BABYLON.GUI.TextBlock("t2", "tree5");
+
+            text1.color = 'white';
+            text2.color = 'white';
+            text3.color = 'white';
+            text4.color = 'white';
+            text5.color = 'white';
+
+            text1.top = '-10%';
+            text2.top = '-27%';
+            text3.top = '-27%';
+            text4.top = '4%';
+            text5.top = '4%';
+
+            text1.left = '-0%';
+            text2.left = '-18%';
+            text3.left = '18%';
+            text4.left = '-15%';
+            text5.left = '15%';
+
+            ui.addControl(text1);
+            ui.addControl(text2);
+            ui.addControl(text3);
+            ui.addControl(text4);
+            ui.addControl(text5);
+        }
+
+
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+
+    </script>
+</body>
+
+</html>
