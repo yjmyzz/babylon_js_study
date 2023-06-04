@@ -57,10 +57,11 @@
             const scene = new BABYLON.Scene(engine);
 
             const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 3.5, Math.PI / 1.5, 30, new BABYLON.Vector3(0, 0, 0));
-            camera.upperBetaLimit = Math.PI / 2.2;
+
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 
+            //导入村庄的模型
             BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "valleyvillage.glb");
 
             // Skybox
@@ -72,6 +73,9 @@
             skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
             skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
             skybox.material = skyboxMaterial;
+
+            //限制攝像的視角
+            camera.upperBetaLimit = Math.PI / 2.2;
 
             return scene;
         }

@@ -55,13 +55,15 @@
 
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
+
+            //设置摄像机的radius为5(离目标近一点)
             var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 5, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
 
             var light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(-1, 1, 0), scene);
             light.diffuse = new BABYLON.Color3(1, 0, 0);
 
-            // Skybox
+            //Skybox（设置size调整成1000）
             var skybox = BABYLON.MeshBuilder.CreateBox("skyBoxDemo", { size: 1000.0 }, scene);
             var skyboxMaterial = new BABYLON.StandardMaterial("skyBox1", scene);
             skyboxMaterial.backFaceCulling = false;
@@ -74,7 +76,6 @@
             return scene;
 
         };
-
 
 
         const scene = createScene();
