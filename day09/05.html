@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Valley-Village-Tree-UFO</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 150%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylonjs.loaders.min.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 15, new BABYLON.Vector3(0, 0, 0));
+            camera.upperBetaLimit = Math.PI / 2.2;
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
+
+            const spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "../assets/img/palm.png", 2000, { width: 512, height: 1024 }, scene);
+
+            //We create trees at random positions
+            for (let i = 0; i < 200; i++) {
+                const tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+                tree.position.x = Math.random() * (-30);
+                tree.position.z = Math.random() * 20 + 8;
+                tree.position.y = 0.5;
+            }
+
+            for (let i = 0; i < 200; i++) {
+                const tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+                tree.position.x = Math.random() * (25) + 7;
+                tree.position.z = Math.random() * -35 + 8;
+                tree.position.y = 0.5;
+            }
+
+            //Skybox
+            const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 150 }, scene);
+            const skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+            skyboxMaterial.backFaceCulling = false;
+            skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("../assets/img/sky/skybox", scene);
+            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+            skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+            skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+            skybox.material = skyboxMaterial;
+
+            BABYLON.SceneLoader.ImportMeshAsync("", "../assets/glb/", "valleyvillage.glb");
+
+            const spriteManagerUFO = new BABYLON.SpriteManager("ufoManager", "../assets/img/ufo.png", 1, { width: 128, height: 76 });
+            const ufo = new BABYLON.Sprite("ufo", spriteManagerUFO);
+            ufo.width = 1;
+            ufo.height = 0.5;
+            ufo.position.y = 5;
+            ufo.position.x = 3;
+            ufo.position.z = 2;
+
+            //playAnimation(from: number, to: number, loop: boolean, delay: number, onAnimationEnd: Nullable<(() => void)>): void
+            ufo.playAnimation(0, 16, true, 125);
+
+            return scene;
+        }
+
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+
+    </script>
+</body>
+
+</html>

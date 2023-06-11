@@ -60,10 +60,9 @@
             const scene = new BABYLON.Scene(engine);
 
             const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 3.5, Math.PI / 1.5, 30, new BABYLON.Vector3(0, 0, 0));
-            //camera.upperBetaLimit = Math.PI / 0.5;
+            camera.upperBetaLimit = Math.PI / 1.5;
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
-
 
             // Skybox
             var skybox = BABYLON.MeshBuilder.CreateBox("skybox", { size: 1000.0 }, scene);
@@ -75,29 +74,27 @@
             skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
             skybox.material = skyboxMaterial;
 
-
             var shapeMaterial = new BABYLON.StandardMaterial("mat", scene);
             shapeMaterial.backFaceCulling = true;
             shapeMaterial.reflectionTexture = new BABYLON.CubeTexture("../assets/img/sky/skybox", scene);
+            //指定为“平面模式”
             shapeMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
-            shapeMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-            shapeMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-
-            // Sphere
-            var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 8 }, scene);
-            ball.material = shapeMaterial;
-            ball.position.x = -20;
-            ball.rotation.y = Math.PI / 8;
-            ball.rotation.x = -Math.PI / 8;
-
+            shapeMaterial.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            shapeMaterial.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
 
             // Box
             var box = BABYLON.MeshBuilder.CreateBox("box", { size: 5 }, scene);
             box.material = shapeMaterial;
-            box.position = new BABYLON.Vector3(-5, 2, 5);
+            box.position.x = -20;
             box.rotation.y = Math.PI / 8;
             box.rotation.x = -Math.PI / 4;
 
+            // Sphere
+            var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 8 }, scene);
+            ball.material = shapeMaterial;
+            ball.position = new BABYLON.Vector3(-5, 2, 5);
+            ball.rotation.y = Math.PI / 8;
+            ball.rotation.x = -Math.PI / 8;
 
             //Ground
             var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
