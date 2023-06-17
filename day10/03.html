@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>particle system -demo</title>
+    <title>particle system</title>
 
     <style>
         html,
@@ -52,6 +52,44 @@
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
+        /***********Create and Draw Axes**************************************/
+        const showAxis = (size, scene) => {
+            const makeTextPlane = (text, color, size) => {
+                const dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", 50, scene, true);
+                dynamicTexture.hasAlpha = true;
+                dynamicTexture.drawText(text, 5, 40, "bold 36px Arial", color, "transparent", true);
+                const plane = new BABYLON.Mesh.CreatePlane("TextPlane", size, scene, true);
+                plane.material = new BABYLON.StandardMaterial("TextPlaneMaterial", scene);
+                plane.material.backFaceCulling = false;
+                plane.material.specularColor = new BABYLON.Color3(0, 0, 0);
+                plane.material.diffuseTexture = dynamicTexture;
+                return plane;
+            };
+
+            const axisX = BABYLON.Mesh.CreateLines("axisX", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, 0.05 * size, 0),
+                new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, -0.05 * size, 0)
+            ]);
+            axisX.color = new BABYLON.Color3(1, 0, 1);
+            const xChar = makeTextPlane("X", "yellow", size / 7);
+            xChar.position = new BABYLON.Vector3(0.9 * size, 0.07 * size, 0);
+
+            const axisY = BABYLON.Mesh.CreateLines("axisY", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3(-0.05 * size, size * 0.95, 0),
+                new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3(0.05 * size, size * 0.95, 0)
+            ]);
+            axisY.color = new BABYLON.Color3(0, 1, 0);
+            const yChar = makeTextPlane("Y", "white", size / 7);
+            yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
+
+            const axisZ = BABYLON.Mesh.CreateLines("axisZ", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3(0, -0.05 * size, size * 0.95),
+                new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3(0, 0.05 * size, size * 0.95)
+            ]);
+            axisZ.color = new BABYLON.Color3(0.5, 1, 1);
+            const zChar = makeTextPlane("Z", "white", size / 7);
+            zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
+        };
 
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
@@ -61,6 +99,13 @@
 
             const light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0));
 
+            //https://doc.babylonjs.com/features/featuresDeepDive/mesh/creation/param/lathe
+            //https://doc.babylonjs.com/features/introductionToFeatures/chap6/fountain
+            const fountain = BABYLON.MeshBuilder.CreateLathe("fountain", { shape: fountainProfile, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
+            fountain.position.y = -15;
+
+
+            //https://doc.babylonjs.com/features/featuresDeepDive/particles/particle_system/particleHelper
             // Create a particle system
             var particleSystem = new BABYLON.ParticleSystem("particles", 5000, scene);
 
@@ -110,8 +155,32 @@
             // Start the particle system
             particleSystem.start();
 
+            //showAxis(24, scene);
             return scene;
         }
+
+        const fountainProfile = [
+            new BABYLON.Vector3(0, 0, 0),
+            new BABYLON.Vector3(10, 0, 0),
+            new BABYLON.Vector3(10, 4, 0),
+            new BABYLON.Vector3(8, 4, 0),
+            new BABYLON.Vector3(8, 1, 0),
+            new BABYLON.Vector3(1, 2, 0),
+            new BABYLON.Vector3(1, 15, 0),
+            new BABYLON.Vector3(3, 17, 0)
+        ];
+
+        const myShape = [
+            new BABYLON.Vector3(3, 0, 0),
+            new BABYLON.Vector3(10, 5, 0),
+            new BABYLON.Vector3(5, 10, 0),
+            new BABYLON.Vector3(12, 15, 0),
+            new BABYLON.Vector3(3, 20, 0)
+        ];
+
+
+
+
 
         const scene = createScene();
 
@@ -122,6 +191,10 @@
         window.addEventListener("resize", function () {
             engine.resize();
         });
+
+
+
+
 
     </script>
 </body>

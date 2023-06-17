@@ -45,6 +45,9 @@
     <script src="../js/earcut.min.js"></script>
 </head>
 
+<!-- //https://doc.babylonjs.com/features/featuresDeepDive/mesh/creation/param/lathe
+//https://doc.babylonjs.com/features/introductionToFeatures/chap6/fountain -->
+
 <body>
     <canvas id="renderCanvas" touch-action="none"></canvas>
 
@@ -91,32 +94,6 @@
             zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
         };
 
-        const createScene = function () {
-            const scene = new BABYLON.Scene(engine);
-
-            const camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 2.5, 70, BABYLON.Vector3.Zero());
-            camera.attachControl(canvas, true);
-
-            const light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0));
-
-            //https://doc.babylonjs.com/features/featuresDeepDive/mesh/creation/param/lathe
-            //https://doc.babylonjs.com/features/introductionToFeatures/chap6/fountain
-            const fountain = BABYLON.MeshBuilder.CreateLathe("fountain", { shape: fountainProfile, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-
-            //Create lathe
-            const lathe1 = BABYLON.MeshBuilder.CreateLathe("lathe1", { shape: myShape, sideOrientation: BABYLON.Mesh.DOUBLESIDE });
-            lathe1.position.x = -30;
-            lathe1.scaling = new BABYLON.Vector3(0.75, 0.75, 0.75);
-
-            //Create lathe
-            const lathe2 = BABYLON.MeshBuilder.CreateLathe("lathe2", { shape: myShape, closed: false, arc: 0.75, sideOrientation: BABYLON.Mesh.DOUBLESIDE });
-            lathe2.position.x = 30;
-            lathe2.scaling = new BABYLON.Vector3(0.75, 0.75, 0.75);
-
-            showAxis(24, scene);
-            return scene;
-        }
-
         const fountainProfile = [
             new BABYLON.Vector3(0, 0, 0),
             new BABYLON.Vector3(10, 0, 0),
@@ -136,6 +113,30 @@
             new BABYLON.Vector3(3, 20, 0)
         ];
 
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 2.5, 70, BABYLON.Vector3.Zero());
+            camera.attachControl(canvas, true);
+
+            const light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0));
+
+            //Create lathe1
+            const fountain = BABYLON.MeshBuilder.CreateLathe("fountain", { shape: fountainProfile, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
+
+            //Create lathe2
+            const lathe1 = BABYLON.MeshBuilder.CreateLathe("lathe1", { shape: myShape, sideOrientation: BABYLON.Mesh.DOUBLESIDE });
+            lathe1.position.x = -30;
+            lathe1.scaling = new BABYLON.Vector3(0.75, 0.75, 0.75);
+
+            //Create lathe3
+            const lathe2 = BABYLON.MeshBuilder.CreateLathe("lathe2", { shape: myShape, closed: false, arc: 0.75, sideOrientation: BABYLON.Mesh.DOUBLESIDE });
+            lathe2.position.x = 30;
+            lathe2.scaling = new BABYLON.Vector3(0.75, 0.75, 0.75);
+
+            showAxis(24, scene);
+            return scene;
+        }
 
 
 
