@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>fume</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 150%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylon.gui.min.js"></script>
+    <script src="../js/earcut.min.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function () {
+
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+
+            // Set up environment
+            var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("../assets/glb/Runyon_Canyon_A_2k_cube_specular.dds", scene);
+            hdrTexture.name = "envTex";
+            hdrTexture.gammaSpace = false;
+            scene.environmentTexture = hdrTexture;
+
+            // Camera
+            var camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 0, 1.25, 25, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, true);
+
+            // Analytical Light
+            var directionalLight = new BABYLON.DirectionalLight("directional", new BABYLON.Vector3(0.5, -2.0, 0.0), scene);
+
+            // Scene color
+            scene.clearColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+
+            //Ground
+            var ground = BABYLON.Mesh.CreatePlane("ground", 500.0, scene);
+            ground.position = new BABYLON.Vector3(0, 0, 0);
+            ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+
+            var groundMat = new BABYLON.PBRMetallicRoughnessMaterial("groundMat", scene);
+            groundMat.baseTexture = new BABYLON.Texture("../assets/img/rockyGround_basecolor.png", scene);
+            groundMat.normalTexture = new BABYLON.Texture("../assets/img/rockyGround_normal.png", scene);
+            groundMat.metallicRoughnessTexture = new BABYLON.Texture("../assets/img/rockyGround_metalRough.png", scene);
+            groundMat.baseTexture.uScale = 40.0;
+            groundMat.baseTexture.vScale = 40.0;
+            groundMat.normalTexture.uScale = 40.0;
+            groundMat.normalTexture.vScale = 40.0;
+            groundMat.metallicRoughnessTexture.uScale = 40.0;
+            groundMat.metallicRoughnessTexture.vScale = 40.0;
+            ground.material = groundMat;
+            ground.material.backFaceCulling = false;
+
+            // Set up new rendering pipeline
+            var pipeline = new BABYLON.DefaultRenderingPipeline("default", true, scene);
+
+            // Tone mapping
+            scene.imageProcessingConfiguration.toneMappingEnabled = true;
+            scene.imageProcessingConfiguration.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+            scene.imageProcessingConfiguration.exposure = 1;
+
+            // Bloom
+            pipeline.bloomEnabled = true;
+            pipeline.bloomThreshold = 0.8;
+            pipeline.bloomWeight = 0.3;
+            pipeline.bloomKernel = 64;
+            pipeline.bloomScale = 0.5;
+
+            // Smoke
+            BABYLON.ParticleHelper.CreateAsync("smoke", scene).then((set) => {
+                set.start();
+            });
+
+
+            return scene;
+        }
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+
+
+
+
+    </script>
+</body>
+
+</html>
