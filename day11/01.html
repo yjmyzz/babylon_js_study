@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>spot-light</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 150%;
+        }
+    </style>
+
+    <script src="../js/babylon.js"></script>
+    <script src="../js/babylon.gui.min.js"></script>
+    <script src="../js/earcut.min.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+
+        var createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 2.2, 50, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 50, 0));
+            light.intensity = 0.3
+
+            //add a spotlight and later after a mesh lamp post and a bulb have been created
+            //then will make the post a parent to the bulb and 
+            //the bulb to the parent
+            const lampLight = new BABYLON.SpotLight("lampLight", BABYLON.Vector3.Zero(),
+                new BABYLON.Vector3(0, -1, 0), Math.PI, 1, scene);
+            lampLight.diffuse = BABYLON.Color3.Yellow();
+
+            const yellowMat = new BABYLON.StandardMaterial("yellowMat");
+            yellowMat.emissiveColor = BABYLON.Color3.Yellow();
+
+            //add bulb
+            const bulb = BABYLON.MeshBuilder.CreateSphere("bulb", { diameterX: 1.5, diameterZ: 0.8 });
+
+            bulb.material = yellowMat;
+            bulb.position.x = 2;
+            bulb.position.y = 10;
+
+            lampLight.parent = bulb;
+
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 50, height: 50 })
+
+            const adt = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+            const panel = new BABYLON.GUI.StackPanel();
+            panel.width = "440px";
+            panel.top = "-50px";
+            panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            adt.addControl(panel);
+
+            const header = new BABYLON.GUI.TextBlock();
+            header.text = "Bulb Height:" + bulb.position.y.toFixed(1);;
+            header.height = "30px";
+            header.left = "0px";
+            header.top = "0px";
+            header.color = "white";
+            panel.addControl(header);
+
+            const slider_height = new BABYLON.GUI.Slider();
+            slider_height.minimum = 3;
+            slider_height.maximum = 15;
+            slider_height.borderColor = "black";
+            slider_height.color = "#AAAAAA";
+            slider_height.background = "#white";
+            slider_height.value = bulb.position.y;
+            slider_height.height = "20px";
+            slider_height.width = "200px";
+            panel.addControl(slider_height);
+
+            slider_height.onValueChangedObservable.add((value) => {
+                if (bulb) {
+                    bulb.position.y = value;
+                    header.text = "Bulb Height:" + value.toFixed(1);
+                }
+            });
+
+
+            const slider_intensity = new BABYLON.GUI.Slider();
+            slider_intensity.minimum = 0;
+            slider_intensity.maximum = 1;
+            slider_intensity.borderColor = "black";
+            slider_intensity.color = "#AAAAAA";
+            slider_intensity.background = "#white";
+            slider_intensity.value = light.intensity;
+            slider_intensity.height = "20px";
+            slider_intensity.width = "200px";
+            panel.addControl(slider_intensity);
+
+            slider_intensity.onValueChangedObservable.add((value) => {
+                if (light) {
+                    light.intensity = value;
+                    //header.text = "Bulb Height:" + value.toFixed(1);
+                }
+            });
+
+            return scene;
+        }
+
+
+
+
+        const scene = createScene();
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+
+
+
+
+    </script>
+</body>
+
+</html>
