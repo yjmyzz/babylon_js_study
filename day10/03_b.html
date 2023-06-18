@@ -52,17 +52,6 @@
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
-        const fountainProfile = [
-            new BABYLON.Vector3(0, 0, 0),
-            new BABYLON.Vector3(10, 0, 0),
-            new BABYLON.Vector3(10, 4, 0),
-            new BABYLON.Vector3(8, 4, 0),
-            new BABYLON.Vector3(8, 1, 0),
-            new BABYLON.Vector3(1, 2, 0),
-            new BABYLON.Vector3(1, 15, 0),
-            new BABYLON.Vector3(3, 17, 0)
-        ];
-
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
 
@@ -70,6 +59,58 @@
             camera.attachControl(canvas, true);
 
             const light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0));
+
+            //Switch fountain on and off
+            let switched = false;
+            const pointerDown = (mesh) => {
+                if (mesh === fountain) {
+                    switched = !switched;
+                    if (switched) {
+                        // Start the particle system
+                        particleSystem.start();
+                    }
+                    else {
+                        // Stop the particle system
+                        particleSystem.stop();
+                    }
+                    text1.text = switched ? "ON" : "OFF";
+                }
+
+            }
+
+            scene.onPointerObservable.add((pointerInfo) => {
+                switch (pointerInfo.type) {
+                    case BABYLON.PointerEventTypes.POINTERDOWN:
+                        if (pointerInfo.pickInfo.hit) {
+                            pointerDown(pointerInfo.pickInfo.pickedMesh)
+                        }
+                        break;
+                }
+            });
+
+            const fountainProfile = [
+                new BABYLON.Vector3(0, 0, 0),
+                new BABYLON.Vector3(10, 0, 0),
+                new BABYLON.Vector3(10, 4, 0),
+                new BABYLON.Vector3(8, 4, 0),
+                new BABYLON.Vector3(8, 1, 0),
+                new BABYLON.Vector3(1, 2, 0),
+                new BABYLON.Vector3(1, 15, 0),
+                new BABYLON.Vector3(3, 17, 0)
+            ];
+
+
+            const showText = function (msg) {
+                const ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("ui");
+                const text1 = new BABYLON.GUI.TextBlock("t0", msg);
+                text1.color = 'white';
+                text1.top = '35%';
+                text1.left = '-0%';
+                ui.addControl(text1);
+                return text1;
+            }
+
+            let text1 = showText("please click on fountain.");
 
             const fountain = BABYLON.MeshBuilder.CreateLathe("fountain", { shape: fountainProfile, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
             fountain.position.y = -15;
@@ -122,6 +163,8 @@
 
             // Start the particle system
             particleSystem.start();
+
+
 
             return scene;
         }
