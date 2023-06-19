@@ -61,9 +61,7 @@
             const light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 50, 0));
             light.intensity = 0.3
 
-            //add a spotlight and later after a mesh lamp post and a bulb have been created
-            //then will make the post a parent to the bulb and 
-            //the bulb to the parent
+            //创建聚光灯
             const lampLight = new BABYLON.SpotLight("lampLight", BABYLON.Vector3.Zero(),
                 new BABYLON.Vector3(0, -1, 0), Math.PI, 1, scene);
             lampLight.diffuse = BABYLON.Color3.Yellow();
@@ -71,35 +69,37 @@
             const yellowMat = new BABYLON.StandardMaterial("yellowMat");
             yellowMat.emissiveColor = BABYLON.Color3.Yellow();
 
-            //add bulb
+            //创建灯泡
             const bulb = BABYLON.MeshBuilder.CreateSphere("bulb", { diameterX: 1.5, diameterZ: 0.8 });
 
             bulb.material = yellowMat;
             bulb.position.x = 2;
             bulb.position.y = 10;
 
+            //将聚光灯的parent关联到bulb(灯泡)
             lampLight.parent = bulb;
 
-            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 50, height: 50 })
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 50, height: 50 });
 
+            //添加控制滑块
             const adt = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
             const panel = new BABYLON.GUI.StackPanel();
-            panel.width = "440px";
-            panel.top = "-50px";
-            panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            panel.width = "220px";
+            panel.top = "-10px";
+            panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
             panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
             adt.addControl(panel);
 
-            const header = new BABYLON.GUI.TextBlock();
-            header.text = "Bulb Height:" + bulb.position.y.toFixed(1);;
-            header.height = "30px";
-            header.left = "0px";
-            header.top = "0px";
-            header.color = "white";
-            panel.addControl(header);
+            const header_height = new BABYLON.GUI.TextBlock();
+            header_height.text = "Bulb Height:" + bulb.position.y.toFixed(1);;
+            header_height.height = "30px";
+            header_height.left = "0px";
+            header_height.top = "0px";
+            header_height.color = "white";
+            panel.addControl(header_height);
 
             const slider_height = new BABYLON.GUI.Slider();
-            slider_height.minimum = 3;
+            slider_height.minimum = 0.5;
             slider_height.maximum = 15;
             slider_height.borderColor = "black";
             slider_height.color = "#AAAAAA";
@@ -109,13 +109,21 @@
             slider_height.width = "200px";
             panel.addControl(slider_height);
 
+            //bulb高度变化-滑块事件
             slider_height.onValueChangedObservable.add((value) => {
                 if (bulb) {
                     bulb.position.y = value;
-                    header.text = "Bulb Height:" + value.toFixed(1);
+                    header_height.text = "Bulb Height:" + value.toFixed(1);
                 }
             });
 
+            const header_intensity = new BABYLON.GUI.TextBlock();
+            header_intensity.text = "Light intensity:" + light.intensity.toFixed(1);;
+            header_intensity.height = "30px";
+            header_intensity.left = "0px";
+            header_intensity.top = "0px";
+            header_intensity.color = "white";
+            panel.addControl(header_intensity);
 
             const slider_intensity = new BABYLON.GUI.Slider();
             slider_intensity.minimum = 0;
@@ -128,10 +136,11 @@
             slider_intensity.width = "200px";
             panel.addControl(slider_intensity);
 
+            //light intensity滑块事件
             slider_intensity.onValueChangedObservable.add((value) => {
                 if (light) {
                     light.intensity = value;
-                    //header.text = "Bulb Height:" + value.toFixed(1);
+                    header_intensity.text = "Light intensity:" + value.toFixed(1);
                 }
             });
 
